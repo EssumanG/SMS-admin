@@ -5,7 +5,7 @@ const dataApi= {
   
 
     async getTasks() {
-        return await fetch(`${baseUrl}/take_five/`).then((res) =>{
+        return await fetch(`${baseUrl}/take_five/task`).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -15,7 +15,7 @@ const dataApi= {
         
     },
     async getTaskDetail(id:string) {
-        return await fetch(`${baseUrl}/take_five/${id}`).then((res) =>{
+        return await fetch(`${baseUrl}/take_five/task/${id}`).then((res) =>{
             return res.json()
             })
             .then((data) =>{

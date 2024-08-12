@@ -2,6 +2,9 @@ import React, { useEffect, useState }  from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams} from 'react-router-dom';
 import dataApi from './dataApi';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import EmployeeInfo from './EmployeeInfo';
 
 
 
@@ -49,11 +52,41 @@ interface Employee {
 
 const TaskDetail: React.FC = () => {
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+  const [employeInfo, setEmployeInfo] = useState<Employee>();
+
     const params = useParams<{ id: string }>();
     const navigate = useNavigate();
     const goBack = () => {
         navigate(-1)
     }
+
+
+    const downloadPdfDocument = (rootElementId:string) => {
+      const input = document.getElementById(rootElementId);
+      if (!input) {
+        console.error(`Element with ID ${rootElementId} not found.`);
+        return;
+    }
+
+    
+    html2canvas(input)
+    .then((canvas) => {
+      const imgData = canvas.toDataURL('/image/png');
+      const pdf = new jsPDF();
+      
+        const imgWidth = pdf.internal.pageSize.getWidth();
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+        pdf.save('download.pdf')
+      })
+    }
+
+
+    const getEmployeeDetail = (member:Employee) =>{
+      setEmployeInfo(member)
+      setIsEmployeeModalOpen(true)
+    } 
 
     useEffect(() => {
         // console.log(params);
@@ -69,7 +102,10 @@ const TaskDetail: React.FC = () => {
     }, []);
 
   return (
-    <div className='bg-gray-100 p-2'>
+    <div>
+      <button onClick={() => downloadPdfDocument('divToDownload')}>Download Pdf</button>
+   
+    <div className='bg-gray-100 p-2' id='divToDownload'>
         <div className="bg-white my-5 flerounded-lg shadow-lg px-8 py-10 max-w-2xl mx-auto">
         <header className="flex mb-3 gap-5 text-center justify-start items-center">
             <FaArrowLeft color="gray" className="text-center text-2xl hover:cursor-pointer hover:bg-orange-100 p-1 hover:rounded-full transform hover:scale-105" onClick={goBack}/>
@@ -203,6 +239,7 @@ const TaskDetail: React.FC = () => {
                 <tr 
                 key={member.id}
                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:cursor-pointer"
+                onClick={() => getEmployeeDetail(member)}
               >
                 <th
                   scope="row"
@@ -251,7 +288,11 @@ const TaskDetail: React.FC = () => {
           </tbody>
         </table>
         </section>
-
+        <EmployeeInfo
+          isOpen={isEmployeeModalOpen}
+          employeeInfo={employeInfo}
+          onRequestClose={() => setIsEmployeeModalOpen(false)}/>
+        </div>
         </div>
     </div>
   );

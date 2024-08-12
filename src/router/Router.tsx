@@ -8,6 +8,7 @@ import TakeFive from '../components/TakeFive'
 import HomePage from '../components/HomePage'
 import TaskDetail from '../components/TaskDetail'
 import IncidentReportDetail from '../components/IncidentReportDetail';
+import EmployeeInfo from '../components/EmployeeInfo';
 const Router:React.FC = () => {
   return (
     <div>
@@ -21,6 +22,7 @@ const Router:React.FC = () => {
                     <Route path='/dashboard/take_fives' element={<TakeFive/>}/>
                     <Route path='/dashboard/task/:id' element={<TaskDetail/>}/>
                     <Route path='/dashboard/incident_report/:id' element={<IncidentReportDetail/>}/>
+                    <Route path='/dashboard/employee/:id' element={<EmployeeInfo/>}/>
                 </Route>
             </Routes>
         </BrowserRouter>

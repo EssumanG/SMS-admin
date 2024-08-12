@@ -56,7 +56,7 @@ const TakeFive: React.FC = () => {
         <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="px-6 py-3 text-center">
+              <th scope="col" className="px-6 py-3 text-center resize-x">
                 TASK NAME
               </th>
               <th scope="col" className="px-6 py-3 text-center">
@@ -127,7 +127,10 @@ const TakeFive: React.FC = () => {
                   scope="row"
                   className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                 >
+                  <textarea className=" resize-x bg-secondary w-max text-center flex self-center rounded-md">
+
                   {task.task_name}
+                  </textarea>
                 </th>
                 <td className="px-6 py-4">{task.location}</td>
                 <td className="px-6 py-4">{task.department || 'Laptop'}</td>

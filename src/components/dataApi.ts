@@ -115,13 +115,23 @@ const dataApi= {
     //         })
     // },
     async getIncidentReports() {
-        return await fetch(`${baseUrl}/incident_reports/`).then((res) =>{
+        return await fetch(`${baseUrl}/incident_reports/all/`).then((res) =>{
             return res.json()
             })
             .then((data) =>{
                 console.log(data)
                 return data
             })
+    },
+    async getIncidentReportDetail(id:string) {
+        return await fetch(`${baseUrl}/incident_reports/detail/${id}`).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+        
     },
     // async createIncidentReport(reportInfo) {
     //     return await fetch(`${baseUrl}/incident_reports/`,{
@@ -138,6 +148,26 @@ const dataApi= {
     //             return data
     //         })
     // },
+
+    async getDepartmentStats() {
+        return await fetch(`${baseUrl}/analysis/department-stats/`).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+    },
+
+    async getReportTrend() {
+        return await fetch(`${baseUrl}/analysis/incident-trend/`).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+    },
   
 }
 

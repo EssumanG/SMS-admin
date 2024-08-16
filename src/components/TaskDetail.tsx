@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState }  from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useNavigate, useParams} from 'react-router-dom';
@@ -90,19 +91,33 @@ const TaskDetail: React.FC = () => {
 
     useEffect(() => {
         // console.log(params);
+
+        let isMounted = true;
+
         (async () => {
             const id = params.id ?? "";
             console.log("okojo",id);
+
+            try {
+              const TakeFiveData = await dataApi.getTaskDetail(id);
+            if (isMounted) setTaskDetail(TakeFiveData);
+            } catch (error) {
+              console.error('Failed to fetch task details:' , error)
+            }
             
-            const TakeFiveData = await dataApi.getTaskDetail(id);
-            setTaskDetail(TakeFiveData);
           })();
+          return () => {
+            isMounted = false;
+          }
         console.log(taskDetail);
         
-    }, []);
+    }, [params.id]);
 
   return (
     <div>
+      { taskDetail ? 
+      
+      <>
       <button onClick={() => downloadPdfDocument('divToDownload')}>Download Pdf</button>
    
     <div className='bg-gray-100 p-2' id='divToDownload'>
@@ -288,12 +303,15 @@ const TaskDetail: React.FC = () => {
           </tbody>
         </table>
         </section>
-        <EmployeeInfo
+        { isEmployeeModalOpen && employeInfo && (
+          <EmployeeInfo
           isOpen={isEmployeeModalOpen}
           employeeInfo={employeInfo}
-          onRequestClose={() => setIsEmployeeModalOpen(false)}/>
+          onRequestClose={() => setIsEmployeeModalOpen(false)}/> )}
         </div>
         </div>
+
+        </>: <h1>Loading ....</h1>}
     </div>
   );
 };

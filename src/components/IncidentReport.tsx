@@ -1,44 +1,50 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import dataApi from './dataApi';
 
-// import { useNavigate } from 'react-router-dom';
-interface Report {
-  id:string;
-  location:string;
-  time_of_incident:string;
-  date_of_incident:string;
-  statement:string;
-  reported_by_name:string;
-  department:string;
+import { useNavigate } from 'react-router-dom';
 
+interface Report {
+  id: string;
+  location: string;
+  time_of_incident: string;
+  date_of_incident: string;
+  statement: string;
+  reported_by_name: string;
+  department: string;
 }
 
-const IncidentReport:React.FC = () => {
+const IncidentReport: React.FC = () => {
   const [incidentReports, setIncidentReports] = useState<Report[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const tasksPerPage = 10; // Number of reports per page
+  const navigate = useNavigate();
 
-
-  
-    // const getTaskDetail = (id:string) => {
-    //   console.log(id)
-    //   navigate(`/dashboard/task/${id}`)
-    // }
+  const getIncidentReportDetail = (id:string) => {
+    console.log(id);
+    navigate(`/dashboard/incident_report/${id}`);
+  }
 
   useEffect(() => {
     (async () => {
       const IncidentReportData = await dataApi.getIncidentReports();
       setIncidentReports(IncidentReportData.data);
-
-      console.log("kojo",incidentReports);
-      
     })();
   }, []);
 
+  // Calculate total pages
+  const totalTasks = incidentReports.length;
+  const totalPages = Math.ceil(totalTasks / tasksPerPage);
+
+  // Get current reports
+  const indexOfLastTask = currentPage * tasksPerPage;
+  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
+  const currentReports = incidentReports.slice(indexOfFirstTask, indexOfLastTask);
+
+  // Function to handle page change
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
   return (
-
     <div>
-      IncidentReport
-
-      <div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -50,20 +56,7 @@ const IncidentReport:React.FC = () => {
                 LOCATION
               </th>
               <th scope="col" className="px-6 py-3 text-center">
-                <div className="flex">
-                  <span>DEPARTMENT</span>
-                  <a href="#">
-                    <svg
-                      className="w-3 h-3 ms-1.5"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z" />
-                    </svg>
-                  </a>
-                </div>
+                DEPARTMENT
               </th>
               <th scope="col" className="px-6 py-3 text-center">
                 STATEMENT
@@ -80,11 +73,11 @@ const IncidentReport:React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {incidentReports.map((report) => (
+            {currentReports.map((report) => (
               <tr
                 key={report.id}
-                className="bg-white border-b hover:bg-gray-50  hover:cursor-pointer"
-                // onClick={() => getTaskDetail(task.id)}
+                className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer"
+                onClick={() => getIncidentReportDetail(report.id)}
               >
                 <th
                   scope="row"
@@ -93,10 +86,10 @@ const IncidentReport:React.FC = () => {
                   {report.reported_by_name}
                 </th>
                 <td className="px-6 py-4">{report.location}</td>
-                <td className="px-6 py-4">{report.department || 'Laptop'}</td>
+                <td className="px-6 py-4">{report.department || 'N/A'}</td>
+                <td className="px-6 py-4 max-w-xs truncate">{report.statement}</td>
                 <td className="px-6 py-4">{report.time_of_incident}</td>
                 <td className="px-6 py-4">{report.date_of_incident}</td>
-                <td className="px-6 py-4">{report.statement}</td>
                 <td className="flex items-center px-6 py-4">
                   <a
                     href={`/dashboard/incident_report/${report.id}`}
@@ -104,12 +97,6 @@ const IncidentReport:React.FC = () => {
                   >
                     View
                   </a>
-                  {/* <a
-                    href="#"
-                    className="font-medium text-red-600 dark:text-red-500  ms-3"
-                  >
-                    Remove
-                  </a> */}
                 </td>
               </tr>
             ))}
@@ -122,75 +109,59 @@ const IncidentReport:React.FC = () => {
         aria-label="Table navigation"
       >
         <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
-          Showing{' '}
-          <span className="font-semibold text-gray-900 dark:text-white">1-10</span>{' '}
-          of <span className="font-semibold text-gray-900 dark:text-white">1000</span>
+          Showing {indexOfFirstTask + 1} -{' '}
+          {Math.min(indexOfLastTask, totalTasks)} of{' '}
+          <span className="font-semibold text-gray-900 dark:text-white">{totalTasks}</span>
         </span>
+
         <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
           <li>
-            <a
-              href="#"
-              className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`flex items-center justify-center px-3 h-8 ms-0 leading-tight ${
+                currentPage === 1
+                  ? 'text-gray-400 bg-gray-200 border border-gray-300'
+                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+              }`}
             >
               Previous
-            </a>
+            </button>
           </li>
+
+          {/* Pagination buttons */}
+          {[...Array(totalPages)].map((_, index) => (
+            <li key={index}>
+              <button
+                onClick={() => paginate(index + 1)}
+                className={`flex items-center justify-center px-3 h-8 leading-tight ${
+                  currentPage === index + 1
+                    ? 'text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700'
+                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+                }`}
+              >
+                {index + 1}
+              </button>
+            </li>
+          ))}
+
           <li>
-            <a
-              href="#"
-              aria-current="page"
-              className="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-            >
-              1
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              2
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              3
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              4
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              5
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`flex items-center justify-center px-3 h-8 leading-tight ${
+                currentPage === totalPages
+                  ? 'text-gray-400 bg-gray-200 border border-gray-300'
+                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
+              }`}
             >
               Next
-            </a>
+            </button>
           </li>
         </ul>
       </nav>
     </div>
-    
+  );
+};
 
-    </div>
-  )
-}
-
-export default IncidentReport
+export default IncidentReport;

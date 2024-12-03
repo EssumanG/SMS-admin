@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import dataApi from './dataApi';
 import { useNavigate } from 'react-router-dom';
+import TakeFiveTable from './TakeFiveTable';
+import { FaSearch } from 'react-icons/fa';
 
-interface Task {
+export interface Task {
   id: string;
   task_name: string;
   location: string;
@@ -24,22 +26,36 @@ interface Task {
 const TakeFive: React.FC = () => {
   const [taskInfo, setTaskInfo] = useState<Task[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [tasksPerPage] = useState(10); // You can change the number of tasks per page
-  const [totalTasks, setTotalTasks] = useState(0); // Store total number of tasks for pagination
+  const tasksPerPage = 5; // You can change the number of tasks per page
+  // const [totalTasks, setTotalTasks] = useState(0); // Store total number of tasks for pagination
+  const [responseExtraInfo, setResponseExtraInfo] = useState({
+    count: 0,
+    next: false,
+    previous: false
+  })
+  const [requestOption, setRequestOption] = useState({
+    page: 1,
+    search: '',
+  })
   const navigate = useNavigate();
 
   // Function to fetch task data with error handling
   useEffect(() => {
     (async () => {
       try {
-        const response = await dataApi.getTasks();
-        setTaskInfo(response.data);
-        setTotalTasks(response.data.length); // Set the total tasks based on the data
+        const TakeFiveResponse = await dataApi.getTasks(requestOption);
+        setTaskInfo(TakeFiveResponse.results);
+        setResponseExtraInfo(() => ({
+          next: TakeFiveResponse.next ? true : false,
+          previous: TakeFiveResponse.next ? true : false,
+          count: TakeFiveResponse.count
+      }))
+        // setTotalTasks(response.data.length); // Set the total tasks based on the data
       } catch (error) {
         console.error('Error fetching task data', error);
       }
     })();
-  }, []);
+  }, [requestOption]);
 
   const getTaskDetail = (id: string) => {
     console.log(id);
@@ -47,92 +63,52 @@ const TakeFive: React.FC = () => {
   };
 
   // Calculate pagination indices
+
+  const totalPages = Math.ceil(responseExtraInfo.count / tasksPerPage);
+
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  const currentTasks = taskInfo.slice(indexOfFirstTask, indexOfLastTask);
+  // const currentTasks = taskInfo.slice(indexOfFirstTask, indexOfLastTask);
 
   // Handle pagination click
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    setRequestOption((prevInfo) => ({
+      ...prevInfo,
+      page: pageNumber
+    }))
+  };
 
   return (
-    <div>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-center">TASK NAME</th>
-              <th scope="col" className="px-6 py-3 text-center">LOCATION</th>
-              <th scope="col" className="px-6 py-3 text-center">DEPARTMENT</th>
-              <th scope="col" className="px-6 py-3 text-center">EMPLOYEE NAME</th>
-              <th scope="col" className="px-6 py-3 text-center">SUPERVISOR</th>
-              <th scope="col" className="px-6 py-3 text-center">OTHER WORKERS</th>
-              <th scope="col" className="px-6 py-3 text-center">No. OF HAZARDS</th>
-              <th scope="col" className="px-6 py-3 text-center">FIT FOR TASK</th>
-              <th scope="col" className="px-6 py-3 text-center">COMPETENT</th>
-              <th scope="col" className="px-6 py-3 text-center">USE OF RIGHT TOOLS</th>
-              <th scope="col" className="px-6 py-3 text-center">HAZARD CONTROLLABLE</th>
-              <th scope="col" className="px-6 py-3 text-center">REVIEWED</th>
-              <th scope="col" className="px-6 py-3 text-center">PROCEDURE DISCUSSED</th>
-              <th scope="col" className="px-6 py-3 text-center">PROCEDURE FOLLOWED</th>
-              <th scope="col" className="px-6 py-3 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentTasks.map((task) => (
-              <tr
-                key={task.id}
-                className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer"
-                onClick={() => getTaskDetail(task.id)}
-              >
-                <td className="px-6 py-4 max-w-xs truncate font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                  {task.task_name}
-                </td>
-                <td className="px-6 py-4">{task.location}</td>
-                <td className="px-6 py-4">{task.department || 'N/A'}</td>
-                <td className="px-6 py-4">{task.created_by_name}</td>
-                <td className="px-6 py-4">{task.supervisor_name}</td>
-                <td className="px-6 py-4">{task.other_workers_count}</td>
-                <td className="px-6 py-4">{task.hazard_control_count}</td>
-                <td className="px-6 py-4">{task.question_employee ? 'YES' : 'NO'}</td>
-                <td className="px-6 py-4">{task.question_competency ? 'YES' : 'NO'}</td>
-                <td className="px-6 py-4">{task.question_tools_and_equp ? 'YES' : 'NO'}</td>
-                <td className="px-6 py-4">{task.question_5A ? 'YES' : 'NO'}</td>
-                <td className="px-6 py-4">{task.question_5B ? 'YES' : 'NO'}</td>
-                <td className="px-6 py-4">{task.question_5C ? 'YES' : 'NO'}</td>
-                <td className="px-6 py-4">{task.question_5D ? 'YES' : 'NO'}</td>
-                <td className="flex items-center px-6 py-4">
-                  <a
-                    href={`/dashboard/task/${task.id}`}
-                    className="font-medium text-green-600 border-2 p-1 border-green-500 rounded-md hover:bg-green-500 hover:text-white"
-                  >
-                    View
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className='p-10'>
+
+      <div className='flex items-center rounded-[5px] my-2'>
+            <input type="text" className='bg-orange-50 h-9 outline-none pl-[13px] w-[350px] rounded-[50x] placeholder:text-[14px] leading-[20px] font-normal' placeholder='Search for...'/>
+                <div className='bg-orange-400 h-[40px] px-[14px] flex items-center justify-center cursor-pointer rounded-tr-[5px] rounded-br-[5px]'>
+                <FaSearch color='white'/>
+            </div>
       </div>
+      <TakeFiveTable tasks={taskInfo} onTaskClick={getTaskDetail} />
 
       {/* Pagination Component */}
       <nav className="flex items-center flex-col flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
         <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
           Showing <span className="font-semibold text-gray-900 dark:text-white">
-            {indexOfFirstTask + 1}-{indexOfLastTask > totalTasks ? totalTasks : indexOfLastTask}
-          </span> of <span className="font-semibold text-gray-900 dark:text-white">{totalTasks}</span>
+            {indexOfFirstTask + 1}-{' '}{Math.min(indexOfLastTask,indexOfLastTask)}
+          </span> of <span className="font-semibold text-gray-900 dark:text-white">{responseExtraInfo.count}</span>
         </span>
         <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
           <li>
             <button
               onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 && responseExtraInfo.previous === false}
               className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               Previous
             </button>
           </li>
           {/* Example: Simple pagination with 5 pages */}
-          {[...Array(Math.ceil(totalTasks / tasksPerPage))].map((_, index) => (
+          {[...Array(Math.ceil(totalPages))].map((_, index) => (
             <li key={index}>
               <button
                 onClick={() => paginate(index + 1)}
@@ -149,7 +125,7 @@ const TakeFive: React.FC = () => {
           <li>
             <button
               onClick={() => paginate(currentPage + 1)}
-              disabled={indexOfLastTask >= totalTasks}
+              disabled={currentPage === totalPages && responseExtraInfo.next === false}
               className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               Next

@@ -6,6 +6,7 @@ import { Progress } from 'antd';
 import PieChartComponent from './PieChartComponent';
 import err from '../assets/error.png';
 import dataApi from './dataApi';
+import { useNavigate } from 'react-router-dom';
 
 // Define the type for department statistics
 interface DepartmentStatsType {
@@ -22,22 +23,44 @@ interface ReportTrendType {
 const Main: React.FC = () => {
   const [departmentStatistics, setDepartmentStatistics] = useState<DepartmentStatsType[]>([]);
   const [reportTrend, setReportTrend] = useState<ReportTrendType[]>([]);
-
+  // const [islogged, setIslogged] = useState<boolean>(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
-    (async () => {
-      const departmentStatResponse = await dataApi.getDepartmentStats();
-      console.log("kojo", departmentStatResponse);
-      setDepartmentStatistics(departmentStatResponse);
-    })();
+    const fetchData = async () => {
+        const token = localStorage.getItem("accessToken");
 
-    (async () => {
-        const reportTrendResponse = await dataApi.getReportTrend();
-        console.log("kojo", reportTrendResponse);
-        setReportTrend(reportTrendResponse);
-      })();
+        if (!token) {
+            navigate("/login");
+            return;
+        }
 
-  }, []); // Empty dependency array to run only on mount
+        try {
+            // Verify the token
+            const isValid = await dataApi.verifyToken(token);
+            // setIslogged(isValid);
+
+            if (!isValid) {
+                navigate("/login");
+                return;
+            }
+
+            // Fetch department statistics and report trends in parallel
+            const [departmentStatResponse, reportTrendResponse] = await Promise.all([
+                dataApi.getDepartmentStats(token),
+                dataApi.getReportTrend(token),
+            ]);
+
+            setDepartmentStatistics(departmentStatResponse);
+            setReportTrend(reportTrendResponse);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            navigate("/login");
+        }
+    };
+
+    fetchData();
+}, [navigate]); // Empty dependency array to run only on mount
 
   return (
     <div className='pt-3 px-3 bg-[#F8F9FC]'>

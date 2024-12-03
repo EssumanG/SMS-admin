@@ -5,7 +5,7 @@ import { useNavigate, useParams} from 'react-router-dom';
 import dataApi from './dataApi';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import EmployeeInfo from './EmployeeInfo';
+// import EmployeeInfo from './EmployeeInfo';
 
 
 
@@ -53,8 +53,8 @@ interface Employee {
 
 const TaskDetail: React.FC = () => {
   const [taskDetail, setTaskDetail] = useState<TaskDetail | null>(null);
-  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
-  const [employeInfo, setEmployeInfo] = useState<Employee>();
+  // const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+  // const [employeInfo, setEmployeInfo] = useState<Employee>();
 
     const params = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -84,9 +84,10 @@ const TaskDetail: React.FC = () => {
     }
 
 
-    const getEmployeeDetail = (member:Employee) =>{
-      setEmployeInfo(member)
-      setIsEmployeeModalOpen(true)
+    const getEmployeeDetail = (id:string) =>{
+      // setEmployeInfo(member)
+      // setIsEmployeeModalOpen(true)
+      navigate(`/dashboard/employee/${id}`);
     } 
 
     useEffect(() => {
@@ -121,7 +122,7 @@ const TaskDetail: React.FC = () => {
       <button onClick={() => downloadPdfDocument('divToDownload')}>Download Pdf</button>
    
     <div className='bg-gray-100 p-2' id='divToDownload'>
-        <div className="bg-white my-5 flerounded-lg shadow-lg px-8 py-10 max-w-2xl mx-auto">
+        <div className="bg-white my-5 flerounded-lg shadow-lg px-10 py-10  mx-32 h-screen">
         <header className="flex mb-3 gap-5 text-center justify-start items-center">
             <FaArrowLeft color="gray" className="text-center text-2xl hover:cursor-pointer hover:bg-orange-100 p-1 hover:rounded-full transform hover:scale-105" onClick={goBack}/>
             <span className="font-mono text-orange-400 text-2xl">Task Detail</span>
@@ -254,7 +255,7 @@ const TaskDetail: React.FC = () => {
                 <tr 
                 key={member.id}
                 className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:cursor-pointer"
-                onClick={() => getEmployeeDetail(member)}
+                onClick={() => getEmployeeDetail(member.id)}
               >
                 <th
                   scope="row"
@@ -265,49 +266,15 @@ const TaskDetail: React.FC = () => {
                   
               </tr>
 
-              ))}
-              <tr
-                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:cursor-pointer"
-              >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  Alex Nkrumah
-                </th>
-                  
-              </tr>
-
-              <tr
-                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:cursor-pointer"
-              >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  Alex Nkrumah
-                </th>
-                {/*  */}
-              </tr>
-              <tr
-                className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 hover:cursor-pointer"
-              >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  Alex Nkrumah
-                </th>
-                
-              </tr>
+              ))}         
           </tbody>
         </table>
         </section>
-        { isEmployeeModalOpen && employeInfo && (
+        {/* { isEmployeeModalOpen && employeInfo && (
           <EmployeeInfo
           isOpen={isEmployeeModalOpen}
           employeeInfo={employeInfo}
-          onRequestClose={() => setIsEmployeeModalOpen(false)}/> )}
+          onRequestClose={() => setIsEmployeeModalOpen(false)}/> )} */}
         </div>
         </div>
 

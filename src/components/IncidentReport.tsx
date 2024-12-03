@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import dataApi from './dataApi';
 
 import { useNavigate } from 'react-router-dom';
+import IncidentReportTable from './IncidentReportTable';
+import { FaSearch } from 'react-icons/fa';
 
-interface Report {
+export interface Report {
   id: string;
   location: string;
   time_of_incident: string;
@@ -16,7 +18,17 @@ interface Report {
 const IncidentReport: React.FC = () => {
   const [incidentReports, setIncidentReports] = useState<Report[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const tasksPerPage = 10; // Number of reports per page
+  // const [totalReports, setTotalReport] = useState(0)
+  const reportsPerPage = 5; // Number of reports per page
+  const [responseExtraInfo, setResponseExtraInfo] = useState({
+    count: 0,
+    next: false,
+    previous: false
+  })
+  const [requestOption, setRequestOption] = useState({
+    page: 1,
+    search: '',
+  })
   const navigate = useNavigate();
 
   const getIncidentReportDetail = (id:string) => {
@@ -26,99 +38,62 @@ const IncidentReport: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      const IncidentReportData = await dataApi.getIncidentReports();
-      setIncidentReports(IncidentReportData.data);
+      const IncidentReportData = await dataApi.getIncidentReports(requestOption);
+      setIncidentReports(IncidentReportData.results);
+      setResponseExtraInfo(() => ({
+        next: IncidentReportData.next ? true : false,
+        previous: IncidentReportData.next ? true : false,
+        count: IncidentReportData.count
+    }))
+      // setTotalReport(IncidentReportData.count)
     })();
-  }, []);
+  }, [requestOption]);
 
   // Calculate total pages
-  const totalTasks = incidentReports.length;
-  const totalPages = Math.ceil(totalTasks / tasksPerPage);
+  const totalPages = Math.ceil(responseExtraInfo.count / reportsPerPage);
 
   // Get current reports
-  const indexOfLastTask = currentPage * tasksPerPage;
-  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  const currentReports = incidentReports.slice(indexOfFirstTask, indexOfLastTask);
+  const indexOfLastTask = currentPage * reportsPerPage;
+  const indexOfFirstTask = indexOfLastTask - reportsPerPage;
+  // const currentReports = incidentReports.slice(indexOfFirstTask, indexOfLastTask);
 
   // Function to handle page change
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    setRequestOption((prevInfo) => ({
+      ...prevInfo,
+      page: pageNumber
+    }))
+  };
 
   return (
-    <div>
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-center">
-                REPORTER
-              </th>
-              <th scope="col" className="px-6 py-3 text-center">
-                LOCATION
-              </th>
-              <th scope="col" className="px-6 py-3 text-center">
-                DEPARTMENT
-              </th>
-              <th scope="col" className="px-6 py-3 text-center">
-                STATEMENT
-              </th>
-              <th scope="col" className="px-6 py-3 text-center">
-                TIME OF INCIDENT
-              </th>
-              <th scope="col" className="px-6 py-3 text-center">
-                DATE OF INCIDENT
-              </th>
-              <th scope="col" className="px-6 py-3 text-center">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentReports.map((report) => (
-              <tr
-                key={report.id}
-                className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer"
-                onClick={() => getIncidentReportDetail(report.id)}
-              >
-                <th
-                  scope="row"
-                  className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                >
-                  {report.reported_by_name}
-                </th>
-                <td className="px-6 py-4">{report.location}</td>
-                <td className="px-6 py-4">{report.department || 'N/A'}</td>
-                <td className="px-6 py-4 max-w-xs truncate">{report.statement}</td>
-                <td className="px-6 py-4">{report.time_of_incident}</td>
-                <td className="px-6 py-4">{report.date_of_incident}</td>
-                <td className="flex items-center px-6 py-4">
-                  <a
-                    href={`/dashboard/incident_report/${report.id}`}
-                    className="font-medium text-green-600 border-2 p-1 border-green-500 rounded-md hover:bg-green-500 hover:text-white"
-                  >
-                    View
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className='p-10'>
 
+
+<div className='flex items-center rounded-[5px] my-2'>
+            <input type="text" className='bg-orange-50 h-9 outline-none pl-[13px] w-[350px] rounded-[50x] placeholder:text-[14px] leading-[20px] font-normal' placeholder='Search for...'/>
+                <div className='bg-orange-400 h-[40px] px-[14px] flex items-center justify-center cursor-pointer rounded-tr-[5px] rounded-br-[5px]'>
+                <FaSearch color='white'/>
+            </div>
+      </div>
+      
+      
+      <IncidentReportTable incidentReports={incidentReports} onReportClick={getIncidentReportDetail} />
       <nav
         className="flex items-center flex-col flex-wrap md:flex-row justify-between pt-4"
         aria-label="Table navigation"
       >
         <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
           Showing {indexOfFirstTask + 1} -{' '}
-          {Math.min(indexOfLastTask, totalTasks)} of{' '}
-          <span className="font-semibold text-gray-900 dark:text-white">{totalTasks}</span>
+          {Math.min(indexOfLastTask, responseExtraInfo.count)} of{' '}
+          <span className="font-semibold text-gray-900 dark:text-white">{responseExtraInfo.count}</span>
         </span>
 
         <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
           <li>
             <button
               onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 && responseExtraInfo.previous === false}
               className={`flex items-center justify-center px-3 h-8 ms-0 leading-tight ${
                 currentPage === 1
                   ? 'text-gray-400 bg-gray-200 border border-gray-300'
@@ -148,7 +123,7 @@ const IncidentReport: React.FC = () => {
           <li>
             <button
               onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages && responseExtraInfo.next === false}
               className={`flex items-center justify-center px-3 h-8 leading-tight ${
                 currentPage === totalPages
                   ? 'text-gray-400 bg-gray-200 border border-gray-300'

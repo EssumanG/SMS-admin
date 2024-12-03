@@ -83,7 +83,9 @@ const EmployeeInfo: React.FC<EmployeeInfoProps> = ({ isOpen, onRequestClose, emp
         </div>
       </div>
     </Modal>
-  );
-}
+
+    
+)}
+
 
 export default EmployeeInfo;

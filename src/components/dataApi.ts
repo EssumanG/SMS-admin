@@ -1,11 +1,57 @@
 
 
 const baseUrl = 'http://localhost:8000'
+// const baseUrl = 'http://172.16.8.176:8000'
+
 const dataApi= {
   
 
-    async getTasks() {
-        return await fetch(`${baseUrl}/take_five/task`).then((res) =>{
+
+    async loginUser(requestionOption: {
+        username: string,
+        password: string,
+    }){
+        return await fetch(`${baseUrl}/auth/login/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestionOption)
+                }).then((res) =>{
+                            return res.json()
+                            })
+                            .then((data) =>{
+                                console.log(data)
+                                return data
+                            })
+    },
+
+    async verifyToken(token: string){
+        return await  fetch(`${baseUrl}/api/token/verify/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "token": token
+            })
+        }).then((res) => {
+            if(res.status == 200){
+                console.log("trueee")
+                return true;
+            }
+            else{
+                console.log("falseeee")
+                return false
+            }
+        })
+    },
+
+    async getTasks(requestOption : {
+        page: number,
+        search: string,
+      }) {
+        return await fetch(`${baseUrl}/take_five/task/?page=${requestOption.page}`).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -15,7 +61,20 @@ const dataApi= {
         
     },
     async getTaskDetail(id:string) {
-        return await fetch(`${baseUrl}/take_five/task/${id}`).then((res) =>{
+        return await fetch(`${baseUrl}/take_five/task/${id}/`).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+        
+    },
+    async getEmployeeTaskById(id:string, requestOption : {
+        page: number,
+        search: string,
+      }) {
+        return await fetch(`${baseUrl}/take_five/employee/${id}/tasks/?page=${requestOption.page}`).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -42,15 +101,29 @@ const dataApi= {
         
     // },
 
-    // async getEmployees() {
-    //     return await fetch(`${baseUrl}/employee/`).then((res) =>{
-    //         return res.json()
-    //         })
-    //         .then((data) =>{
-    //             console.log(data)
-    //             return data
-    //         })
-    // },
+    async getEmployees(requestOption : {
+        page: number,
+        search: string,
+      }) {
+        return await fetch(`${baseUrl}/employee/all/?page=${requestOption.page}`).then((res) =>{
+            console.log("ehlo")
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+    },
+    async getEmployeeDetail(id: string) {
+        return await fetch(`${baseUrl}/employee/${id}/`).then((res) =>{
+            console.log("ehlo")
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+    },
     // async createEmployee(employeeInfo) {
     //     return await fetch(`${baseUrl}/employee/`,{
     //         method: "POST",
@@ -114,8 +187,11 @@ const dataApi= {
     //             return data
     //         })
     // },
-    async getIncidentReports() {
-        return await fetch(`${baseUrl}/incident_reports/all/`).then((res) =>{
+    async getIncidentReports(requestOption : {
+        page: number,
+        search: string,
+      }) {
+        return await fetch(`${baseUrl}/incident_reports/all/?page=${requestOption.page}`).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -125,6 +201,19 @@ const dataApi= {
     },
     async getIncidentReportDetail(id:string) {
         return await fetch(`${baseUrl}/incident_reports/detail/${id}`).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+        
+    },
+    async getEmployeeIncidentReportById(id:string, requestOption : {
+        page: number,
+        search: string,
+      }) {
+        return await fetch(`${baseUrl}/incident_reports/employee/${id}/incident_reports/?page=${requestOption.page}`).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -149,8 +238,16 @@ const dataApi= {
     //         })
     // },
 
-    async getDepartmentStats() {
-        return await fetch(`${baseUrl}/analysis/department-stats/`).then((res) =>{
+    async getDepartmentStats(token: string) {
+        return await fetch(`${baseUrl}/analysis/department-stats/`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        ).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -159,8 +256,16 @@ const dataApi= {
             })
     },
 
-    async getReportTrend() {
-        return await fetch(`${baseUrl}/analysis/incident-trend/`).then((res) =>{
+    async getReportTrend(token: string) {
+        return await fetch(`${baseUrl}/analysis/incident-trend/`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        ).then((res) =>{
             return res.json()
             })
             .then((data) =>{

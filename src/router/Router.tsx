@@ -8,7 +8,11 @@ import TakeFive from '../components/TakeFive'
 import HomePage from '../components/HomePage'
 import TaskDetail from '../components/TaskDetail'
 import IncidentReportDetail from '../components/IncidentReportDetail';
-import EmployeeInfo from '../components/EmployeeInfo';
+// import EmployeeInfo from '../components/EmployeeInfo';
+import EmployeeList from '../components/EmployeeList';
+import EmpInfoTest from '../components/EmpInfoTest'
+import LoginPage from '../components/LoginPage';
+
 const Router:React.FC = () => {
   return (
     <div>
@@ -17,13 +21,19 @@ const Router:React.FC = () => {
                 <Route path='' element={<HomePage/>}/>
                 <Route path='/dashboard' element={<App/>}>
                     <Route index element={<Main/>} />
-                    <Route path='/dashboard/incident_reports' element={<IncidentReport/>}/>
-                    <Route path='/dashboard/near_miss' element={<NearMiss/>}/>
-                    <Route path='/dashboard/take_fives' element={<TakeFive/>}/>
-                    <Route path='/dashboard/task/:id' element={<TaskDetail/>}/>
-                    <Route path='/dashboard/incident_report/:id' element={<IncidentReportDetail/>}/>
-                    <Route path='/dashboard/employee/:id' element={<EmployeeInfo/>}/>
+                    <Route path='incident_reports' element={<IncidentReport/>}/>
+                    <Route path='near_miss' element={<NearMiss/>}/>
+                    <Route path='take_fives' element={<TakeFive/>}/>
+                    <Route path='task/:id' element={<TaskDetail/>}/>
+                    <Route path='incident_report/:id' element={<IncidentReportDetail/>}/>
+                    {/* <Route path='/dashboard/employee/:id' element={<EmployeeInfo isOpen={false} onRequestClose={function (): void {
+                      throw new Error('Function not implemented.');
+            } } />}/> */}
+                    <Route path='employees' element={<EmployeeList/>}/>
+                    <Route path='employee/:id' element={<EmpInfoTest/>}/>
+
                 </Route>
+                <Route path='/login' element={<LoginPage/>}/>
             </Routes>
         </BrowserRouter>
     </div>

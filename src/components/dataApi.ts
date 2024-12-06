@@ -50,8 +50,14 @@ const dataApi= {
     async getTasks(requestOption : {
         page: number,
         search: string,
-      }) {
-        return await fetch(`${baseUrl}/take_five/task/?page=${requestOption.page}`).then((res) =>{
+      }, token: string) {
+        return await fetch(`${baseUrl}/take_five/task/?page=${requestOption.page}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -60,8 +66,14 @@ const dataApi= {
             })
         
     },
-    async getTaskDetail(id:string) {
-        return await fetch(`${baseUrl}/take_five/task/${id}/`).then((res) =>{
+    async getTaskDetail(id:string, token: string) {
+        return await fetch(`${baseUrl}/take_five/task/${id}/`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -73,8 +85,14 @@ const dataApi= {
     async getEmployeeTaskById(id:string, requestOption : {
         page: number,
         search: string,
-      }) {
-        return await fetch(`${baseUrl}/take_five/employee/${id}/tasks/?page=${requestOption.page}`).then((res) =>{
+      }, token: string) {
+        return await fetch(`${baseUrl}/take_five/employee/${id}/tasks/?page=${requestOption.page}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -114,8 +132,14 @@ const dataApi= {
                 return data
             })
     },
-    async getEmployeeDetail(id: string) {
-        return await fetch(`${baseUrl}/employee/${id}/`).then((res) =>{
+    async getEmployeeDetail(id: string, token: string) {
+        return await fetch(`${baseUrl}/employee/${id}/`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
             console.log("ehlo")
             return res.json()
             })
@@ -190,8 +214,14 @@ const dataApi= {
     async getIncidentReports(requestOption : {
         page: number,
         search: string,
-      }) {
-        return await fetch(`${baseUrl}/incident_reports/all/?page=${requestOption.page}`).then((res) =>{
+      }, token: string) {
+        return await fetch(`${baseUrl}/incident_reports/all/?page=${requestOption.page}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -199,8 +229,14 @@ const dataApi= {
                 return data
             })
     },
-    async getIncidentReportDetail(id:string) {
-        return await fetch(`${baseUrl}/incident_reports/detail/${id}`).then((res) =>{
+    async getIncidentReportDetail(id:string, token: string) {
+        return await fetch(`${baseUrl}/incident_reports/detail/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
             return res.json()
             })
             .then((data) =>{
@@ -212,8 +248,14 @@ const dataApi= {
     async getEmployeeIncidentReportById(id:string, requestOption : {
         page: number,
         search: string,
-      }) {
-        return await fetch(`${baseUrl}/incident_reports/employee/${id}/incident_reports/?page=${requestOption.page}`).then((res) =>{
+      }, token: string) {
+        return await fetch(`${baseUrl}/incident_reports/employee/${id}/incident_reports/?page=${requestOption.page}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
             return res.json()
             })
             .then((data) =>{

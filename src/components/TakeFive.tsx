@@ -41,9 +41,26 @@ const TakeFive: React.FC = () => {
 
   // Function to fetch task data with error handling
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
+    
+    const token = localStorage.getItem("accessToken");
+
+
+    if (!token) {
+      navigate("/login");
+      return;
+  }
+    
       try {
-        const TakeFiveResponse = await dataApi.getTasks(requestOption);
+        const isValid = await dataApi.verifyToken(token);
+
+        if (!isValid) {
+          navigate("/login");
+          return;
+      }
+        const TakeFiveResponse = await dataApi.getTasks(requestOption, token);
+
+
         setTaskInfo(TakeFiveResponse.results);
         setResponseExtraInfo(() => ({
           next: TakeFiveResponse.next ? true : false,
@@ -53,9 +70,12 @@ const TakeFive: React.FC = () => {
         // setTotalTasks(response.data.length); // Set the total tasks based on the data
       } catch (error) {
         console.error('Error fetching task data', error);
+        navigate("/login");
       }
-    })();
-  }, [requestOption]);
+    
+  }
+  fetchData();
+  }, [navigate, requestOption]);
 
   const getTaskDetail = (id: string) => {
     console.log(id);

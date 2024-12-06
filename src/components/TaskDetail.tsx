@@ -95,22 +95,40 @@ const TaskDetail: React.FC = () => {
 
         let isMounted = true;
 
-        (async () => {
+        const fetchData = async () => {
+
+
+          const token = localStorage.getItem("accessToken");
+
+          if (!token) {
+              navigate("/login");
+              return;
+          }
+
             const id = params.id ?? "";
             console.log("okojo",id);
 
             try {
-              const TakeFiveData = await dataApi.getTaskDetail(id);
+              const isValid = await dataApi.verifyToken(token);
+            // setIslogged(isValid);
+              if (!isValid) {
+                  navigate("/login");
+                  return;
+              }
+              const TakeFiveData = await dataApi.getTaskDetail(id, token);
             if (isMounted) setTaskDetail(TakeFiveData);
             } catch (error) {
               console.error('Failed to fetch task details:' , error)
             }
             
-          })();
+          
           return () => {
             isMounted = false;
           }
         console.log(taskDetail);
+        };
+
+        fetchData();
         
     }, [params.id]);
 

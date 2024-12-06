@@ -37,17 +37,42 @@ const IncidentReport: React.FC = () => {
   }
 
   useEffect(() => {
-    (async () => {
-      const IncidentReportData = await dataApi.getIncidentReports(requestOption);
-      setIncidentReports(IncidentReportData.results);
-      setResponseExtraInfo(() => ({
-        next: IncidentReportData.next ? true : false,
-        previous: IncidentReportData.next ? true : false,
-        count: IncidentReportData.count
+    const fetchData = async () => {
+
+      const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+        try { 
+
+          // Verify the token
+          const isValid = await dataApi.verifyToken(token);
+          // setIslogged(isValid);
+
+          if (!isValid) {
+              navigate("/login");
+              return;
+          }
+
+        const IncidentReportData = await dataApi.getIncidentReports(requestOption, token);
+        setIncidentReports(IncidentReportData.results);
+        setResponseExtraInfo(() => ({
+          next: IncidentReportData.next ? true : false,
+          previous: IncidentReportData.next ? true : false,
+          count: IncidentReportData.count
     }))
+
+  } catch (error) {
+      console.error("Error fetching data:", error);
+      navigate("/login");
+  }
       // setTotalReport(IncidentReportData.count)
-    })();
-  }, [requestOption]);
+    }
+
+    fetchData();
+  }, [requestOption, navigate]);
 
   // Calculate total pages
   const totalPages = Math.ceil(responseExtraInfo.count / reportsPerPage);

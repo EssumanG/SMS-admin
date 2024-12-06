@@ -13,6 +13,7 @@ const EmpInfoTest: React.FC = () => {
   const tasksPerPage = 5;
   const params = useParams<{ id: string }>();
   const [employeeInfo, setEmployeeInfo] = useState<Employee>()
+  const [currentTab, setCurrentTab] = useState<number>(1)
 
   const [responseExtraInfo, setResponseExtraInfo] = useState({
     count: 0,
@@ -25,14 +26,33 @@ const EmpInfoTest: React.FC = () => {
   })
   const navigate = useNavigate();
 
+  const SwitchTab = (tabNumber: number) => {
+    setCurrentTab(tabNumber)
+  }
 
   useEffect(() => {
     const id = params.id ?? "";
       console.log("okojo",id);
-    (async () => {
+
+      const fetchData = async () => {
+
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
 
       try {
-        const TakeFiveResponse = await dataApi.getEmployeeTaskById(id, requestOption);
+
+        const isValid = await dataApi.verifyToken(token);
+        // setIslogged(isValid);
+
+        if (!isValid) {
+            navigate("/login");
+            return;
+        }
+        const TakeFiveResponse = await dataApi.getEmployeeTaskById(id, requestOption, token);
         setTaskInfo(TakeFiveResponse.results);
         setResponseExtraInfo(() => ({
           next: TakeFiveResponse.next ? true : false,
@@ -42,22 +62,36 @@ const EmpInfoTest: React.FC = () => {
         // setTotalTasks(response.data.length); // Set the total tasks based on the data
       } catch (error) {
         console.error('Error fetching task data', error);
+        navigate("/login");
       }
-    })();
+    
 
 
     (async () => {
       
 
       try {
-        const empoloyeeDetail = await dataApi.getEmployeeDetail(id);
+
+        const isValid = await dataApi.verifyToken(token);
+        // setIslogged(isValid);
+
+        if (!isValid) {
+            navigate("/login");
+            return;
+        }
+        const empoloyeeDetail = await dataApi.getEmployeeDetail(id, token);
         setEmployeeInfo(empoloyeeDetail);
         // setTotalTasks(response.data.length); // Set the total tasks based on the data
       } catch (error) {
         console.error('Error fetching task data', error);
       }
     })();
-  }, [requestOption, params.id]);
+
+  }
+
+
+  fetchData();
+  }, [requestOption, params.id, navigate]);
 
 
   const getTaskDetail = (id: string) => {
@@ -126,13 +160,25 @@ const EmpInfoTest: React.FC = () => {
         <div className="flex gap-2">
           <button
             type="button"
-            className="inline-flex w-auto cursor-pointer select-none appearance-none items-center justify-center space-x-1 rounded border border-gray-200 bg-white px-3 py-2 text-lg font-medium text-gray-800 transition hover:border-gray-300 active:bg-white hover:bg-gray-100 focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className={`inline-flex w-auto cursor-pointer select-none appearance-none items-center justify-center space-x-1 rounded border border-gray-200 px-3 py-2 text-lg font-medium text-gray-800 transition hover:border-gray-300 active:bg-white focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+              ${
+                currentTab === 1
+            ? "bg-blue-700  focus:ring-blue-300 active:bg-blue-700"
+            : "bg-white  focus:ring-gray-300"
+        }`}
+            onClick={() => SwitchTab(1)}
           >
             View Incident Report
           </button>
           <button
             type="button"
-            className="inline-flex w-auto cursor-pointer select-none appearance-none items-center justify-center space-x-1 rounded border border-gray-200 bg-blue-700 px-3 py-2 text-lg font-medium text-white transition hover:border-blue-300 hover:bg-blue-600 active:bg-blue-700 focus:blue-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className={`inline-flex w-auto cursor-pointer select-none appearance-none items-center justify-center space-x-1 rounded border border-gray-200  px-3 py-2 text-lg font-medium text-gray-800 transition hover:border-gray-300  focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+              ${
+                currentTab === 2
+            ? "bg-blue-700  focus:ring-blue-300 active:bg-blue-700"
+            : "bg-white  focus:ring-gray-300"
+        }`}
+        onClick={() => SwitchTab(2)}
           >
             View Take Fives
           </button>

@@ -41,18 +41,39 @@ const IncidentReportDetail:React.FC = () => {
 
     let isMounted = true;
 
-    (async () => {
-        const id = params.id ?? "";
-        console.log("okojo",id);
+
+
+    const id = params.id ?? "";
+    console.log("okojo",id);
+    const fetchData = async () => {
+
+        const token = localStorage.getItem("accessToken");
+
+        if (!token) {
+            navigate("/login");
+            return;
+        }
 
         try {
-          const reportDetailData = await dataApi.getIncidentReportDetail(id);
+
+          // Verify the token
+          const isValid = await dataApi.verifyToken(token);
+          // setIslogged(isValid);
+
+          if (!isValid) {
+              navigate("/login");
+              return;
+          }
+          const reportDetailData = await dataApi.getIncidentReportDetail(id, token);
         if (isMounted) setIncidentReportDetail(reportDetailData);
         } catch (error) {
-          console.error('Failed to fetch task details:' , error)
+          console.error('Failed to fetch Report details:' , error)
+          navigate("/login");
         }
         
-      })();
+      }
+
+      fetchData();
       return () => {
         isMounted = false;
       }

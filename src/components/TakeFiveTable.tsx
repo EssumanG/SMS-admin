@@ -41,7 +41,7 @@ const TakeFiveTable:React.FC<TaskTableProps> = ({tasks, onTaskClick}) => {
                 className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer"
                 onClick={() => onTaskClick(task.id)}
               >
-                <td className="px-6 py-4 max-w-xs truncate font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <td className="px-6 py-4 max-w-xs truncate font-medium text-gray-900 whitespace-nowrap ">
                   {task.task_name}
                 </td>
                 <td className="px-6 py-4">{task.location}</td>

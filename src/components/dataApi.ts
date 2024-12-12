@@ -264,6 +264,41 @@ const dataApi= {
             })
         
     },
+    async getNearMissDetail(id:string, token: string) {
+        return await fetch(`${baseUrl}/near_miss/detail/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+        
+    },
+    async getEmployeeNearMissById(id:string, requestOption : {
+        page: number,
+        search: string,
+      }, token: string) {
+        return await fetch(`${baseUrl}/near_miss/employee/${id}/near_miss/?page=${requestOption.page}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+        
+    },
     // async createIncidentReport(reportInfo) {
     //     return await fetch(`${baseUrl}/incident_reports/`,{
     //         method: "POST",
@@ -279,6 +314,25 @@ const dataApi= {
     //             return data
     //         })
     // },
+
+    async getNearMiss(requestOption : {
+        page: number,
+        search: string,
+      }, token: string) {
+        return await fetch(`${baseUrl}/near_miss/all/?page=${requestOption.page}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+        }).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+    },
 
     async getDepartmentStats(token: string) {
         return await fetch(`${baseUrl}/analysis/department-stats/`,

@@ -12,6 +12,7 @@ import IncidentReportDetail from '../components/IncidentReportDetail';
 import EmployeeList from '../components/EmployeeList';
 import EmpInfoTest from '../components/EmpInfoTest'
 import LoginPage from '../components/LoginPage';
+import NearMissDetail from '../components/NearMissDetail';
 
 const Router:React.FC = () => {
   return (
@@ -26,6 +27,7 @@ const Router:React.FC = () => {
                     <Route path='take_fives' element={<TakeFive/>}/>
                     <Route path='task/:id' element={<TaskDetail/>}/>
                     <Route path='incident_report/:id' element={<IncidentReportDetail/>}/>
+                    <Route path='near_miss/:id' element={<NearMissDetail/>}/>
                     {/* <Route path='/dashboard/employee/:id' element={<EmployeeInfo isOpen={false} onRequestClose={function (): void {
                       throw new Error('Function not implemented.');
             } } />}/> */}

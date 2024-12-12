@@ -5,10 +5,26 @@ import dataApi from './dataApi';
 import { useNavigate, useParams} from 'react-router-dom';
 import { Employee } from './EmployeeList';
 import { FaSearch } from 'react-icons/fa';
+import IncidentReportTable from './IncidentReportTable';
+import NearMissTable from './NearMissTable';
+import { NearMissType } from './NearMiss';
+import { Report } from './IncidentReport'
+
+
+
+
+
+type CurrTabTableProps = {
+  currentTab: number;
+};
+
 
 
 const EmpInfoTest: React.FC = () => {
-  const [taskInfo, setTaskInfo] = useState<Task[]>([]);
+  // const [dataInfo, setDataInfo] = useState<Task[] | Report[] | NearMissType[]>([]);
+  const [taskInfo, setTaskInfo] = useState<Task[] >([]);
+  const [incidentInfo, setIncidentInfo] = useState<Report[]>([]);
+  const [nearMissInfo, setNearMissInfo] = useState<NearMissType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const tasksPerPage = 5;
   const params = useParams<{ id: string }>();
@@ -29,6 +45,45 @@ const EmpInfoTest: React.FC = () => {
   const SwitchTab = (tabNumber: number) => {
     setCurrentTab(tabNumber)
   }
+
+
+  const CurrTabTable: React.FC<CurrTabTableProps> = ({currentTab}) => {
+ 
+
+    if (currentTab === 1){
+      return (
+        <div>
+            <TakeFiveTable tasks={taskInfo} onTaskClick={getTaskDetail} />
+
+        </div>
+
+      )
+    }
+    if (currentTab === 2){
+      return (
+        <div>
+            <IncidentReportTable incidentReports={incidentInfo} onReportClick={getTaskDetail} />
+            </div>
+      ) 
+    }
+    else{
+      return (
+        <div>
+            <NearMissTable nearMisses={nearMissInfo}  onReportClick={getTaskDetail} />
+       
+        </div>
+      )
+    }
+    
+  
+  }
+
+
+
+
+
+
+  
 
   useEffect(() => {
     const id = params.id ?? "";
@@ -52,13 +107,36 @@ const EmpInfoTest: React.FC = () => {
             navigate("/login");
             return;
         }
-        const TakeFiveResponse = await dataApi.getEmployeeTaskById(id, requestOption, token);
-        setTaskInfo(TakeFiveResponse.results);
-        setResponseExtraInfo(() => ({
-          next: TakeFiveResponse.next ? true : false,
-          previous: TakeFiveResponse.next ? true : false,
-          count: TakeFiveResponse.count
-      }))
+        if (currentTab==1){
+          const TakeFiveResponse = await dataApi.getEmployeeTaskById(id, requestOption, token);
+          setTaskInfo(TakeFiveResponse.results);
+
+          setResponseExtraInfo(() => ({
+            next: TakeFiveResponse.next ? true : false,
+            previous: TakeFiveResponse.next ? true : false,
+            count: TakeFiveResponse.count
+          }))
+        }
+        else if(currentTab==2){
+          const IncidentReportResponse = await dataApi.getEmployeeIncidentReportById(id, requestOption, token);
+          setIncidentInfo(IncidentReportResponse.results);
+
+          setResponseExtraInfo(() => ({
+            next: IncidentReportResponse.next ? true : false,
+            previous: IncidentReportResponse.next ? true : false,
+            count: IncidentReportResponse.count
+          }))
+        }
+        else {
+          const NearMissResponse = await dataApi.getEmployeeNearMissById(id, requestOption, token);
+          setNearMissInfo(NearMissResponse.results);
+
+          setResponseExtraInfo(() => ({
+            next: NearMissResponse.next ? true : false,
+            previous: NearMissResponse.next ? true : false,
+            count: NearMissResponse.count
+          }))
+        }
         // setTotalTasks(response.data.length); // Set the total tasks based on the data
       } catch (error) {
         console.error('Error fetching task data', error);
@@ -91,16 +169,23 @@ const EmpInfoTest: React.FC = () => {
 
 
   fetchData();
-  }, [requestOption, params.id, navigate]);
+  }, [params.id, navigate, currentTab, requestOption]);
 
 
   const getTaskDetail = (id: string) => {
-    console.log(id);
-    navigate(`/dashboard/task/${id}`);
+    if(currentTab ===  1){
+      navigate(`/dashboard/task/${id}`);
+    }
+    else if(currentTab ===  2){
+      navigate(`/dashboard/incident_report/${id}`);
+    }
+    else {
+      navigate(`/dashboard/near_miss/${id}`);
+    }
+    
   };
 
-  // Calculate pagination indices
-
+  
   const totalPages = Math.ceil(responseExtraInfo.count / tasksPerPage);
 
   const indexOfLastTask = currentPage * tasksPerPage;
@@ -168,7 +253,7 @@ const EmpInfoTest: React.FC = () => {
         }`}
             onClick={() => SwitchTab(1)}
           >
-            View Incident Report
+            View Take Fives
           </button>
           <button
             type="button"
@@ -180,7 +265,19 @@ const EmpInfoTest: React.FC = () => {
         }`}
         onClick={() => SwitchTab(2)}
           >
-            View Take Fives
+            View Incident Reports
+          </button>
+          <button
+            type="button"
+            className={`inline-flex w-auto cursor-pointer select-none appearance-none items-center justify-center space-x-1 rounded border border-gray-200  px-3 py-2 text-lg font-medium text-gray-800 transition hover:border-gray-300  focus:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300
+              ${
+                currentTab === 3
+            ? "bg-blue-700  focus:ring-blue-300 active:bg-blue-700"
+            : "bg-white  focus:ring-gray-300"
+        }`}
+        onClick={() => SwitchTab(3)}
+          >
+            View Near Misses
           </button>
         </div>
         <h4 className="text-md font-medium leading-3">About</h4>
@@ -194,7 +291,8 @@ const EmpInfoTest: React.FC = () => {
           </div>
           </div>
         <div>
-        <TakeFiveTable tasks={taskInfo} onTaskClick={getTaskDetail} />
+          <CurrTabTable currentTab={currentTab}/>
+          {/* <TakeFiveTable tasks={taskInfo} onTaskClick={getTaskDetail} /> */}
 
       {/* Pagination Component */}
       <nav className="flex items-center flex-col flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">

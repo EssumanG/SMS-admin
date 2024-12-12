@@ -1,20 +1,21 @@
 import React from 'react'
-import {Report} from './IncidentReport';
+import  { NearMissType } from './NearMiss';
 
-interface IncidentReportProps {
-    incidentReports: Report[],
+interface NearMissProps {
+    nearMisses: NearMissType[],
     onReportClick: (id: string) => void;
 }
 
-const IncidentReportTable:React.FC<IncidentReportProps> = ({incidentReports, onReportClick}) => {
+
+const NearMissTable:React.FC<NearMissProps> = ({nearMisses, onReportClick}) => {
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        { incidentReports.length > 0 ? (
+        { nearMisses.length > 0 ? (
         <table className="w-full text-sm text-center text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-orange-400 dark:bg-gray-700 dark:text-gray-400">
             <tr>
               <th scope="col" className="px-6 py-3 text-center">
-                REPORTER
+                DESCRIPTION
               </th>
               <th scope="col" className="px-6 py-3 text-center">
                 LOCATION
@@ -23,13 +24,19 @@ const IncidentReportTable:React.FC<IncidentReportProps> = ({incidentReports, onR
                 DEPARTMENT
               </th>
               <th scope="col" className="px-6 py-3 text-center">
-                STATEMENT
+                HAZARD CLASS
               </th>
               <th scope="col" className="px-6 py-3 text-center">
-                TIME OF INCIDENT
+                REPORTER
               </th>
               <th scope="col" className="px-6 py-3 text-center">
-                DATE OF INCIDENT
+                UNSAFE ACT
+              </th>
+              <th scope="col" className="px-6 py-3 text-center">
+                TIME
+              </th>
+              <th scope="col" className="px-6 py-3 text-center">
+                DATE
               </th>
               <th scope="col" className="px-6 py-3 text-center">
                 Action
@@ -37,7 +44,7 @@ const IncidentReportTable:React.FC<IncidentReportProps> = ({incidentReports, onR
             </tr>
           </thead>
           <tbody>
-            {incidentReports.map((report) => (
+            {nearMisses.map((report) => (
               <tr
                 key={report.id}
                 className="bg-white border-b hover:bg-gray-50 hover:cursor-pointer"
@@ -47,13 +54,15 @@ const IncidentReportTable:React.FC<IncidentReportProps> = ({incidentReports, onR
                   scope="row"
                   className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
                 >
-                  {report.reported_by_name}
+                  {report.near_miss_description}
                 </th>
                 <td className="px-6 py-4">{report.location}</td>
                 <td className="px-6 py-4">{report.department || 'N/A'}</td>
-                <td className="px-6 py-4 max-w-xs truncate">{report.statement}</td>
-                <td className="px-6 py-4">{report.time_of_incident}</td>
-                <td className="px-6 py-4">{report.date_of_incident}</td>
+                <td className="px-6 py-4 max-w-xs truncate">{report.hazard_class}</td>
+                <td className="px-6 py-4">{report.reported_by_name}</td>
+                <td className="px-6 py-4">{report.unsafe_act}</td>
+                <td className="px-6 py-4">{report.time}</td>
+                <td className="px-6 py-4">{report.date}</td>
                 <td className="flex items-center px-6 py-4">
                   <a
                     href={`/dashboard/incident_report/${report.id}`}
@@ -66,9 +75,9 @@ const IncidentReportTable:React.FC<IncidentReportProps> = ({incidentReports, onR
             ))}
           </tbody>
         </table>
-         ): <div className='p-5 flex justify-center items-center font-mono'> No Available Task Data Yet</div>}
+         ): <div className='p-5 flex justify-center items-center font-mono'> No Available Near Miss Data Yet</div>}
       </div>
   )
 }
 
-export default IncidentReportTable
+export default NearMissTable

@@ -369,6 +369,26 @@ const dataApi= {
                 return data
             })
     },
+
+    async getGeneralInfo(token: string) {
+        return await fetch(`${baseUrl}/analysis/dashboard-info/`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+            }
+        ).then((res) =>{
+            return res.json()
+            })
+            .then((data) =>{
+                console.log(data)
+                return data
+            })
+    },
+
+
   
 }
 

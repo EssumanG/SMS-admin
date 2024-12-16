@@ -6,7 +6,7 @@ import { Progress } from 'antd';
 import PieChartComponent from './PieChartComponent';
 import err from '../assets/error.png';
 import dataApi from './dataApi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 // Define the type for department statistics
 interface DepartmentStatsType {
@@ -20,9 +20,22 @@ interface ReportTrendType {
     incident_count: number;
   }
 
+interface GeneralInfoType{
+take_five_count: number
+employee_count : number
+near_miss_count: number
+incident_report_count: number
+}
+
 const Main: React.FC = () => {
   const [departmentStatistics, setDepartmentStatistics] = useState<DepartmentStatsType[]>([]);
   const [reportTrend, setReportTrend] = useState<ReportTrendType[]>([]);
+  const [generalInfo, setGeneralInfo] = useState<GeneralInfoType>({
+    take_five_count: 0,
+    employee_count : 0,
+    near_miss_count: 0,
+    incident_report_count: 0,
+    });
   // const [islogged, setIslogged] = useState<boolean>(false)
   const navigate = useNavigate()
 
@@ -46,13 +59,15 @@ const Main: React.FC = () => {
             }
 
             // Fetch department statistics and report trends in parallel
-            const [departmentStatResponse, reportTrendResponse] = await Promise.all([
+            const [departmentStatResponse, reportTrendResponse, generalInfo] = await Promise.all([
                 dataApi.getDepartmentStats(token),
                 dataApi.getReportTrend(token),
+                dataApi.getGeneralInfo(token)
             ]);
 
             setDepartmentStatistics(departmentStatResponse);
             setReportTrend(reportTrendResponse);
+            setGeneralInfo(generalInfo)
         } catch (error) {
             console.error("Error fetching data:", error);
             navigate("/login");
@@ -72,19 +87,53 @@ const Main: React.FC = () => {
       </div>
       
       {/* Incident Report Cards */}
-      <div className='grid grid-cols-4 gap-4 mt-3 pb-3'>
-        {Array(4).fill(null).map((_, index) => (
+      <div className='grid grid-cols-4 gap-6 mt-3 pb-3'>
+      <Link to={"/dashboard/take_fives"}>
           <div
-            key={index}
             className='h-24 rounded-sm bg-white border-l-2 border-orange-500 flex items-center justify-between px-3 cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out'
           >
-            <div>
-              <h2 className='text-slate-300 text-sm leading-4 font-bold'>INCIDENT REPORT</h2>
-              <h2 className='text-lg leading-4 font-bold text-slate-200 mt-1'>40</h2>
+            <div className='grid gap-5 grid-flow-col'>
+              <div><h2 className='flex text-slate-500 text-sm leading-4 font-bold'>TAKE FIVES:</h2></div>
+              <div><h2 className='text-3xl leading-4 font-bold text-slate-400'>{generalInfo.take_five_count}</h2></div>
             </div>
-            <FaRegLifeRing fontSize={28} />
+            <FaRegLifeRing className="mr-5" fontSize={28} />
           </div>
-        ))}
+          </Link>
+
+          <Link to={"/dashboard/incident_reports"}>
+          <div
+            className='h-24 rounded-sm bg-white border-l-2 border-orange-500 flex items-center justify-between px-3 cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out'
+          >
+            <div className='grid gap-5 grid-flow-col justify-between'>
+              <h2 className='text-slate-500 text-sm leading-4 font-bold'>INCIDENT REPORT:</h2>
+              <h2 className='text-3xl leading-4 font-bold text-slate-400'>{generalInfo.incident_report_count}</h2>
+            </div>
+            <FaRegLifeRing className="mr-5" fontSize={28} />
+          </div>
+          </Link>
+
+          <Link to={'/dashboard/near_miss'}>
+          <div
+            className='h-24 rounded-sm bg-white border-l-2 border-orange-500 flex items-center justify-between px-3 cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out'
+          >
+            <div className='grid gap-5 grid-flow-col justify-between'>
+              <h2 className='text-slate-500 text-lg leading-4 font-bold'>NEAR MISSES:</h2>
+              <h2 className='text-3xl leading-4 font-bold text-slate-400 '>{generalInfo.near_miss_count}</h2>
+            </div>
+            <FaRegLifeRing className="mr-5" fontSize={28} />
+          </div>
+          </Link>
+
+          <Link to={"/dashboard/employees"}>
+          <div
+            className='h-24 rounded-sm bg-white border-l-2 border-orange-500 flex items-center justify-between px-3 cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out'
+          >
+            <div className='grid gap-5 grid-flow-col justify-between'>
+              <h2 className='text-slate-500 text-sm leading-4 font-bold'>No of EMPLOYEES:</h2>
+              <h2 className='text-3xl leading-4 font-bold text-slate-400'>{generalInfo.employee_count}</h2>
+            </div>
+            <FaRegLifeRing className="mr-5" fontSize={28} />
+          </div></Link>
       </div>
 
       {/* Incident Overview Chart */}

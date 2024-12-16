@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dataApi from './dataApi';
 
@@ -6,8 +6,9 @@ const LoginPage:React.FC = () => {
 
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("")
+    const [failedAttempt, setFailedAttempt] = useState<boolean>(false)
     const navigate = useNavigate();
-
+  
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement> ) => {
@@ -32,7 +33,14 @@ const LoginPage:React.FC = () => {
             localStorage.setItem("accessToken", loggedIn.tokens.access)
             navigate('/dashboard');
         }
+        setFailedAttempt(true)
     }
+    useEffect(() => {
+      return () => {
+        setFailedAttempt(false)
+      }
+    }, [])
+    
 
     
   return (
@@ -51,9 +59,10 @@ const LoginPage:React.FC = () => {
         </a>
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-            <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+            <h1 className="items-center text-center text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Sign in to your account
             </h1>
+            { failedAttempt && <p className='items-center text-center text-red-600 font-semibold leading-4'>Incorrect Username or Password</p>}
             <form className="space-y-4 md:space-y-6" action="#">
               <div>
                 <label

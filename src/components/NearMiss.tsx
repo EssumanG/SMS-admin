@@ -4,6 +4,7 @@ import dataApi from './dataApi';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 import NearMissTable from './NearMissTable';
+import Pagination from './Pagination';
 
 
 export interface NearMissType{
@@ -22,8 +23,6 @@ const NearMiss:React.FC = () => {
 
   const [nearMissList, setNearMissList] = useState<NearMissType[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  // const [totalReports, setTotalReport] = useState(0)
-  const reportsPerPage = 5; // Number of reports per page
   const [responseExtraInfo, setResponseExtraInfo] = useState({
     count: 0,
     next: false,
@@ -79,13 +78,6 @@ const NearMiss:React.FC = () => {
     fetchData();
   }, [requestOption, navigate]);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(responseExtraInfo.count / reportsPerPage);
-
-  // Get current reports
-  const indexOfLastTask = currentPage * reportsPerPage;
-  const indexOfFirstTask = indexOfLastTask - reportsPerPage;
-  // const currentReports = incidentReports.slice(indexOfFirstTask, indexOfLastTask);
 
   // Function to handle page change
   const paginate = (pageNumber: number) => {
@@ -111,62 +103,7 @@ const NearMiss:React.FC = () => {
       
       
       <NearMissTable nearMisses={nearMissList} onReportClick={getNearMissDetail} />
-      <nav
-        className="flex items-center flex-col flex-wrap md:flex-row justify-between pt-4"
-        aria-label="Table navigation"
-      >
-        <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
-          Showing {indexOfFirstTask + 1} -{' '}
-          {Math.min(indexOfLastTask, responseExtraInfo.count)} of{' '}
-          <span className="font-semibold text-gray-900 dark:text-white">{responseExtraInfo.count}</span>
-        </span>
-
-        <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
-          <li>
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1 && responseExtraInfo.previous === false}
-              className={`flex items-center justify-center px-3 h-8 ms-0 leading-tight ${
-                currentPage === 1
-                  ? 'text-gray-400 bg-gray-200 border border-gray-300'
-                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-              }`}
-            >
-              Previous
-            </button>
-          </li>
-
-          {/* Pagination buttons */}
-          {[...Array(totalPages)].map((_, index) => (
-            <li key={index}>
-              <button
-                onClick={() => paginate(index + 1)}
-                className={`flex items-center justify-center px-3 h-8 leading-tight ${
-                  currentPage === index + 1
-                    ? 'text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-                }`}
-              >
-                {index + 1}
-              </button>
-            </li>
-          ))}
-
-          <li>
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages && responseExtraInfo.next === false}
-              className={`flex items-center justify-center px-3 h-8 leading-tight ${
-                currentPage === totalPages
-                  ? 'text-gray-400 bg-gray-200 border border-gray-300'
-                  : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700'
-              }`}
-            >
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
+      <Pagination onPageChange={paginate} currentPage={currentPage} hasPrevious={responseExtraInfo.previous} hasNext={responseExtraInfo.next} count={responseExtraInfo.count}/>
     </div>
   )
 }

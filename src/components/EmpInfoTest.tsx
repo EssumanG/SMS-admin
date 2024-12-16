@@ -1,90 +1,19 @@
-import TakeFiveTable from './TakeFiveTable'
 import React, { useEffect, useState } from 'react';
-import {Task}  from './TakeFive'
 import dataApi from './dataApi';
 import { useNavigate, useParams} from 'react-router-dom';
 import { Employee } from './EmployeeList';
 import { FaSearch } from 'react-icons/fa';
-import IncidentReportTable from './IncidentReportTable';
-import NearMissTable from './NearMissTable';
-import { NearMissType } from './NearMiss';
-import { Report } from './IncidentReport'
-
-
-
-
-
-type CurrTabTableProps = {
-  currentTab: number;
-};
-
-
+import CurrTabTable from './CurrTabTable';
 
 const EmpInfoTest: React.FC = () => {
-  // const [dataInfo, setDataInfo] = useState<Task[] | Report[] | NearMissType[]>([]);
-  const [taskInfo, setTaskInfo] = useState<Task[] >([]);
-  const [incidentInfo, setIncidentInfo] = useState<Report[]>([]);
-  const [nearMissInfo, setNearMissInfo] = useState<NearMissType[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const tasksPerPage = 5;
   const params = useParams<{ id: string }>();
   const [employeeInfo, setEmployeeInfo] = useState<Employee>()
   const [currentTab, setCurrentTab] = useState<number>(1)
-
-  const [responseExtraInfo, setResponseExtraInfo] = useState({
-    count: 0,
-    next: false,
-    previous: false
-  })
-  const [requestOption, setRequestOption] = useState({
-    page: 1,
-    search: '',
-  })
   const navigate = useNavigate();
 
   const SwitchTab = (tabNumber: number) => {
     setCurrentTab(tabNumber)
   }
-
-
-  const CurrTabTable: React.FC<CurrTabTableProps> = ({currentTab}) => {
- 
-
-    if (currentTab === 1){
-      return (
-        <div>
-            <TakeFiveTable tasks={taskInfo} onTaskClick={getTaskDetail} />
-
-        </div>
-
-      )
-    }
-    if (currentTab === 2){
-      return (
-        <div>
-            <IncidentReportTable incidentReports={incidentInfo} onReportClick={getTaskDetail} />
-            </div>
-      ) 
-    }
-    else{
-      return (
-        <div>
-            <NearMissTable nearMisses={nearMissInfo}  onReportClick={getTaskDetail} />
-       
-        </div>
-      )
-    }
-    
-  
-  }
-
-
-
-
-
-
-  
-
   useEffect(() => {
     const id = params.id ?? "";
       console.log("okojo",id);
@@ -107,37 +36,6 @@ const EmpInfoTest: React.FC = () => {
             navigate("/login");
             return;
         }
-        if (currentTab==1){
-          const TakeFiveResponse = await dataApi.getEmployeeTaskById(id, requestOption, token);
-          setTaskInfo(TakeFiveResponse.results);
-
-          setResponseExtraInfo(() => ({
-            next: TakeFiveResponse.next ? true : false,
-            previous: TakeFiveResponse.next ? true : false,
-            count: TakeFiveResponse.count
-          }))
-        }
-        else if(currentTab==2){
-          const IncidentReportResponse = await dataApi.getEmployeeIncidentReportById(id, requestOption, token);
-          setIncidentInfo(IncidentReportResponse.results);
-
-          setResponseExtraInfo(() => ({
-            next: IncidentReportResponse.next ? true : false,
-            previous: IncidentReportResponse.next ? true : false,
-            count: IncidentReportResponse.count
-          }))
-        }
-        else {
-          const NearMissResponse = await dataApi.getEmployeeNearMissById(id, requestOption, token);
-          setNearMissInfo(NearMissResponse.results);
-
-          setResponseExtraInfo(() => ({
-            next: NearMissResponse.next ? true : false,
-            previous: NearMissResponse.next ? true : false,
-            count: NearMissResponse.count
-          }))
-        }
-        // setTotalTasks(response.data.length); // Set the total tasks based on the data
       } catch (error) {
         console.error('Error fetching task data', error);
         navigate("/login");
@@ -169,38 +67,8 @@ const EmpInfoTest: React.FC = () => {
 
 
   fetchData();
-  }, [params.id, navigate, currentTab, requestOption]);
-
-
-  const getTaskDetail = (id: string) => {
-    if(currentTab ===  1){
-      navigate(`/dashboard/task/${id}`);
-    }
-    else if(currentTab ===  2){
-      navigate(`/dashboard/incident_report/${id}`);
-    }
-    else {
-      navigate(`/dashboard/near_miss/${id}`);
-    }
-    
-  };
-
-  
-  const totalPages = Math.ceil(responseExtraInfo.count / tasksPerPage);
-
-  const indexOfLastTask = currentPage * tasksPerPage;
-  const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-  // const currentTasks = taskInfo.slice(indexOfFirstTask, indexOfLastTask);
-
-  // Handle pagination click
-  const paginate = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    setRequestOption((prevInfo) => ({
-      ...prevInfo,
-      page: pageNumber
-    }))
-  };
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.id, navigate, currentTab]);
   return (
     <div>
       <div className="bg-slate-100 md:mx-auto rounded shadow-xl w-full  overflow-hidden p-10 lg:px-32">
@@ -291,52 +159,7 @@ const EmpInfoTest: React.FC = () => {
           </div>
           </div>
         <div>
-          <CurrTabTable currentTab={currentTab}/>
-          {/* <TakeFiveTable tasks={taskInfo} onTaskClick={getTaskDetail} /> */}
-
-      {/* Pagination Component */}
-      <nav className="flex items-center flex-col flex-wrap md:flex-row justify-between pt-4" aria-label="Table navigation">
-        <span className="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">
-          Showing <span className="font-semibold text-gray-900 dark:text-white">
-            {indexOfFirstTask + 1}-{' '}{Math.min(indexOfLastTask,indexOfLastTask)}
-          </span> of <span className="font-semibold text-gray-900 dark:text-white">{responseExtraInfo.count}</span>
-        </span>
-        <ul className="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
-          <li>
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1 && responseExtraInfo.previous === false}
-              className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              Previous
-            </button>
-          </li>
-          {/* Example: Simple pagination with 5 pages */}
-          {[...Array(Math.ceil(totalPages))].map((_, index) => (
-            <li key={index}>
-              <button
-                onClick={() => paginate(index + 1)}
-                className={`flex items-center justify-center px-3 h-8 leading-tight ${
-                  currentPage === index + 1
-                    ? 'text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
-                    : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
-                }`}
-              >
-                {index + 1}
-              </button>
-            </li>
-          ))}
-          <li>
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages && responseExtraInfo.next === false}
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
+          <CurrTabTable id={params.id ? params.id : ""} currentTab={currentTab}/>
     </div>
 
        

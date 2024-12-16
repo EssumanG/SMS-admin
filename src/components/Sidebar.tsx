@@ -1,9 +1,19 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import { FaRegSun, FaTachometerAlt, FaChevronRight, FaWrench, FaChartBar } from 'react-icons/fa'
+import { Link, useNavigate } from 'react-router-dom'
+import { FaRegSun, FaTachometerAlt, FaChevronRight, FaWrench, FaDoorOpen } from 'react-icons/fa'
 import { FaNoteSticky } from 'react-icons/fa6'
 
+
+
+
+
 const Sidebar:React.FC = () => {
+    const navigate = useNavigate()
+    
+    const logOut = () => {
+        localStorage.removeItem("accessToken")
+        navigate("/login")
+    }
   return (
     <div className='bg-orange-400 h-screen px-4'>
         <div className='ps-4 py-5 flex items-center justify-center border-b border-slate-200'>
@@ -71,12 +81,11 @@ const Sidebar:React.FC = () => {
                 <FaChevronRight color='white'/>
             </div>
 
-            <div className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
+            <div className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer' onClick={logOut}>
                 <div className='flex items-center gap-[10px]'>
-                    <FaChartBar color='white'/>
-                    <p className='text-[14px] leading-[20px] font-normal text-white'>Charts</p>
+                <FaDoorOpen color='white'/>
+                    <p className='text-[14px] leading-[20px] font-normal text-white'>Log Out</p>
                 </div>
-                <FaChevronRight color='white'/>
             </div>
         </div>
 
